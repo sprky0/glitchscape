@@ -3,7 +3,13 @@ $(function(){
 	var ext = (new Audio().canPlayType("audio/mp3")) ? "mp3" : "wav",
 		aud = [],
 		_z = 1,
-		$container = $("body");
+		$container = $("body"),
+		options = {
+			audio : false,
+			divisions : Math.floor( Math.random() * 5000 + 1)
+
+		},
+		colors = [];
 
 	for(var j = 0; j < 20; j++) {
 		for (var i = 1; i <= 8; i++) {
@@ -12,6 +18,10 @@ $(function(){
 			a.volume = .6;
 			aud.push(a);
 		}
+	}
+
+	function random_preset_color() {
+		return colors[Math.floor( Math.random() * colors.length )];
 	}
 
 	function random_color() {
@@ -29,6 +39,8 @@ $(function(){
 	}
 
 	function beep() {
+		if (options.audio !== true)
+			return false;
 		var a = aud[ Math.floor( Math.random() * aud.length ) ];
 		a.play();
 	}
@@ -52,22 +64,22 @@ $(function(){
 	function split(target) {
 
 		var $target = $(target),
-			mode = Math.random() > .5 ? "vertical" : "horizontal";
-
-		$target.removeClass("active");
+			mode = Math.random() > .5 ? "v" : "h";
 
 		var width = $target.width(),
 			height = $target.height(),
 			top = $target.position() ? $target.position().top : 0,
 			left = $target.position() ? $target.position().left : 0;
 
+		$target.remove(); // removeClass("active");
+
 		switch(mode) {
-			case "vertical":
+			case "v":
 
 				$("<div>")
 					.addClass("active absolute")
 					.css({
-						"background-color" : random_color(),
+						"background-color" : random_preset_color(),
 						top : top + "px",
 						left : left + "px",
 						width : width + "px",
@@ -79,7 +91,7 @@ $(function(){
 				$("<div>")
 					.addClass("active absolute")
 					.css({
-						"background-color" : random_color(),
+						"background-color" : random_preset_color(),
 						top : (top + height / 2) + "px",
 						left : left,
 						width : width + "px",
@@ -89,42 +101,50 @@ $(function(){
 					.appendTo($container);
 
 			break;
-			case "horizontal":
+			case "h":
 
 				$("<div>")
 					.addClass("active absolute")
 					.css({
-						"background-color" : random_color(),
+						"background-color" : random_preset_color(),
 						top : top + "px",
-						left : (left + height / 2) + "px",
+						left : left + "px",
 						width : (width / 2) + "px",
-						height : height
+						height : height + "px",
+						"z-index" : z()
 					})
-					.appendTo(target);
+					.appendTo($container);
 
 				$("<div>")
 					.addClass("active absolute")
 					.css({
-						"background-color" : random_color(),
-						top : (top + height / 2) + "px",
-						left : left,
+						"background-color" : random_preset_color(),
+						top : top + "px",
+						left : (left + width / 2) + "px",
 						width : (width / 2) + "px",
-						height : height + "px"
+						height : height + "px",
+						"z-index" : z()
 					})
-					.appendTo(target);
+					.appendTo($container);
 
 			break;
 		}
 
 	}
 
-
-	/*
 	$(document)
-		.on("keyup",key_action)
+		.on("mouseover",".active",click_action) // .on("keyup",key_action)
 		.on("click",".active",click_action);
-	*/
 
-	setInterval(key_action,250);
+	for( var i = 0; i < 3; i++)
+		colors.push(random_color());
+
+	while(options.divisions > 0) {
+		key_action();
+		options.divisions--;
+	}
+
+	// setInterval(key_action,1);
+	// key_action();
 
 });
