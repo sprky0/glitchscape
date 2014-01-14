@@ -2,7 +2,7 @@
  * Require.js config
  */
 require.config({
-	// baseURL : "../js",
+	//baseURL : "../",
 	paths : {
 		"jquery" : "vendor/jquery.js"
 	}
