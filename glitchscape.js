@@ -1,7 +1,10 @@
 define("glitchscape",[],function(){
 
-	var	colors = [];
-	var max_colors = 3;
+	// var	colors = ['red','green','blue','yellow','teal','white','black','grey'];
+	var colors = [];
+	var max_colors = 300;
+	var min_opacity = 0;
+	var max_opacity = 1;
 	var canvas;
 	var container = document.getElementsByTagName("body")[0];
 	var buffer = 20;
@@ -19,7 +22,7 @@ define("glitchscape",[],function(){
 		c += Math.ceil(Math.random() * 255) + ",";
 		c += Math.ceil(Math.random() * 255) + ",";
 		c += Math.ceil(Math.random() * 255) + ",";
-		c += float_between(.1,.3) + ")";
+		c += float_between(min_opacity,max_opacity) + ")";
 		return c;
 	}
 
@@ -32,11 +35,11 @@ define("glitchscape",[],function(){
 	}
 
 	function random_x() {
-		return integer_between(buffer, width() - buffer);
+		return integer_between(buffer, width() - buffer * 2);
 	}
 
 	function random_y() {
-		return integer_between(buffer, height() - buffer);
+		return integer_between(buffer, height() - buffer * 2);
 	}
 	
 	function integer_between(a,b) {
@@ -62,7 +65,7 @@ define("glitchscape",[],function(){
 
 	}
 	
-	function box(x,y,w,h,color) {
+	function shape_box(x,y,w,h,color) {
 
 		var ctx = get_context();
 
@@ -80,7 +83,7 @@ define("glitchscape",[],function(){
 
 	}
 
-	function shape(x,y,w,h,color,sides) {
+	function shape_spike(x,y,w,h,color,sides) {
 
 		var ctx = get_context();
 
@@ -94,6 +97,34 @@ define("glitchscape",[],function(){
 			ctx.lineTo(integer_between(x,x+w), integer_between(y,y+h));
 
 		ctx.lineTo(x, y);
+		ctx.closePath();
+		ctx.fill();
+
+	}
+	
+	function shape_curve(x,y,w,h,color,curves) {
+		
+		var ctx = get_context();
+
+		ctx.lineWidth = 0;
+		
+		ctx.fillStyle = color || random_preset_color();
+		ctx.moveTo(x, y);
+		ctx.beginPath();
+
+		var new_x, new_y;
+		var last_x = x;
+		var last_y = y;
+
+		for(var i = 0; i < (curves || 10); i++) {
+			new_x = integer_between(x,x+w)
+			new_y = integer_between(y,y+h);
+			ctx.arcTo(last_x, last_y, new_x, new_y, Math.abs(last_x - new_x));
+			last_x = new_x;
+			last_y = new_y;
+		}
+
+		ctx.arcTo(last_x,last_y,x,y, Math.abs(last_x - x));
 		ctx.closePath();
 		ctx.fill();
 
@@ -128,21 +159,12 @@ define("glitchscape",[],function(){
 
 	}
 
-	function mode_boxy() {
-
-		// random shapes
-		setInterval(function(){
-			for( var i = 0; i < 10; i++) {
-				var x1 = random_x();
-				var y1 = random_y();
-				var x2 = random_x();
-				var y2 = random_y();
-				// var sides = integer_between(1,100);
-				// shape(x1,y1,x2,y2,random_preset_color(),10);
-				box(x1,y1,x2,y2,random_preset_color());
-			}
-		}, 100);
-
+	function box() {
+		var x1 = random_x();
+		var y1 = random_y();
+		var x2 = random_x();
+		var y2 = random_y();
+		shape_box(x1,y1,x2,y2,random_preset_color());
 	}
 
 	function spike() {
@@ -150,43 +172,28 @@ define("glitchscape",[],function(){
 		var y1 = random_y();
 		var x2 = random_x();
 		var y2 = random_y();
-		// var sides = integer_between(1,100);
-		// shape(x1,y1,x2,y2,random_preset_color(),10);
-		shape(x1,y1,x2,y2,random_preset_color());
+		shape_spike(x1,y1,x2,y2,random_preset_color());
 	}
 
-	function mode_spikey() {
-
-		// random shapes
-		setInterval(function(){
-			for( var i = 0; i < 10; i++) {
-				spike();
-			}
-		}, 100);
-
+	function curve() {
+		var x1 = random_x();
+		var y1 = random_y();
+		var x2 = random_x();
+		var y2 = random_y();
+		shape_curve(x1,y1,x2,y2,random_preset_color());
 	}
 
 	function run() {
 
-		console.log( width(), height() );
+		shape_box(0,0,width(),height());
 
-		// background fill
-		box(0,0,width(),height());
-
-		bounds();
-
-
-		// mode_boxy();
-		// mode_spikey();
-		spike();
-		spike();
-		spike();
-		spike();
-		spike();
-		spike();
-		spike();
-		spike();
-
+		setTimeout(function(){
+	
+			setInterval(box,250);
+			setInterval(curve,100);
+			setInterval(spike,500);
+			
+		}, 250);
 
 	}
 
